@@ -17,4 +17,3 @@ class StoreSerializer(serializers.ModelSerializer):
         model = Store
         fields = ["id", "vendor", "name", "description", "logo"]
         read_only_fields = ["id", "vendor"]
-

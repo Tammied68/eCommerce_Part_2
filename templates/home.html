@@ -1,10 +1,28 @@
-<p>Welcome to the eCommerce application — browse products below or sign in to manage your store.</p>
-
 <p>
-  <a href="{% url 'login' %}">Login</a> |
-  <a href="{% url 'register' %}">Register</a>
+  Welcome to the eCommerce application — browse products
+  below or sign in to manage your store.
 </p>
 
 <p>
   <a href="{% url 'products:list' %}">All Products</a>
 </p>
+{% if user.is_authenticated %}
+
+<p>
+    <a href="{% url 'store_list' %}">My Stores</a> |
+    <a href="/products/cart/">Cart</a>
+</p>
+
+<form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button type="submit">Logout</button>
+</form>
+
+{% else %}
+
+<p>
+    <a href="{% url 'login' %}">Login</a> |
+    <a href="{% url 'register' %}">Register</a>
+</p>
+
+{% endif %}

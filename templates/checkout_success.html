@@ -10,7 +10,7 @@
 <p>Your order #{{ order.id }} has been placed successfully.</p>
 <p>Total: ${{ total }}</p>
 
-<p><a href="/products/browse/">Continue Shopping</a></p>
+<p><a href="{% url 'products:list' %}">Continue Shopping</a></p>
 <p><a href="/stores/">Back to Stores</a></p>
 
 </body>

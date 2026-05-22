@@ -1,182 +1,112 @@
-# 🛒 eCommerce Application (Capstone Submission)
+# eCommerce Part 1 Project
 
-## 📌 Overview
+## Overview
 
-This project is a Django-based eCommerce application developed as part of a capstone assignment. It demonstrates full-stack development skills including authentication, role-based access control, database design, and application structure using Django.
+This project is a Django-based eCommerce application that supports both vendors and buyers. Vendors can create and manage stores and products, while buyers can browse products, add items to a cart, complete purchases, and leave reviews.
 
-The system supports multiple user roles and allows structured interaction between buyers, vendors, and administrators.
-
----
-
-## ✨ Key Features
-
-* User authentication (login/logout)
-* Role-based access control
-* Product browsing and detail views
-* Product review functionality
-* Vendor store creation and management
-* CRUD operations for products
-* Django admin for full system control
+The application implements role-based access control, session-based cart management, invoice generation, email notifications, and verified purchase reviews.
 
 ---
 
-## 👥 User Roles
+## Features
+### Database
 
-### Buyer
+The application uses MariaDB as the backend database for storing:
 
-* Browse available products
-* View product details
-* Leave reviews
+- User accounts
+- Stores
+- Products
+- Orders
+- Reviews
 
-### Vendor
+### User Authentication
 
-* Create and manage stores
-* Add, edit, and delete products
+- User registration
+- User login
+- User logout
+- Role-based access control for buyers and vendors
 
-### Admin
+### Vendor Features
 
-* Full access via Django Admin
-* Manage users, stores, products, and reviews
+Vendors can:
+
+- Create stores
+- Edit stores
+- Delete stores
+- View all stores they own
+- Add products to their stores
+- Edit products
+- Delete products
+
+Vendor-only navigation and store management features are restricted to users assigned to the Vendors group.
+
+### Buyer Features
+
+Buyers can:
+
+- Browse available products
+- View product details
+- Add products to a shopping cart
+- Manage a session-based cart
+- Checkout purchased items
+- Receive an invoice via email
+- Leave product reviews
+
+### Shopping Cart
+
+The application uses Django sessions to maintain a user's cart while browsing.
+
+Features include:
+
+- Add products to cart
+- View cart contents
+- View order totals
+- Checkout purchased items
+- Automatic cart clearing after successful checkout
+
+### Checkout and Invoicing
+
+During checkout:
+
+- An order is created
+- Order items are recorded
+- An invoice is generated
+- An invoice email is sent to the buyer
+- Purchased items are removed from the cart
+
+### Product Reviews
+
+Buyers can submit product reviews.
+
+The application automatically identifies whether the buyer previously purchased the product and displays:
+
+- Verified Purchase
+- Unverified
+
+This helps provide trustworthy product feedback.
 
 ---
 
-## 🛠️ Tech Stack
+## Technologies Used
 
-* Python
-* Django
-* HTML / Django Templates
-* MySQL
-* Django Admin
+- Python
+- Django
+- MariaDB
+- HTML
+- CSS
+- Django Sessions
+- Django Authentication System
 
 ---
 
-## ⚙️ Installation & Setup (Local Environment)
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/Tammied68/ecommerce_part1_project-.git
-cd ecommerce_part1_project-
-```
-
-### 2. Create & Activate Virtual Environment
-
-#### macOS / Linux
-
-```bash
-python -m venv venv
-source venv/bin/activate
-```
-
-#### Windows
-
-```bash
-python -m venv venv
-venv\\Scripts\\activate
-```
-
-### 3. Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Configure Database
-
-Update `settings.py` with your MySQL credentials:
-
-```python
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": "your_database_name",
-        "USER": "your_mysql_username",
-        "PASSWORD": "your_mysql_password",
-        "HOST": "localhost",
-        "PORT": "3306",
-    }
-}
-```
-
-### 5. Apply Migrations
-
-```bash
-python manage.py makemigrations
+## Running the Project
 python manage.py migrate
-```
-
-### 6. Create Superuser
-
-```bash
-python manage.py createsuperuser
-```
-
-### 7. Run the Server
-
-```bash
 python manage.py runserver
-```
 
-Open in browser:
-
-```
 http://127.0.0.1:8000/
 
-```
+### Clone the Repository
 
----
-
-## 🔐 Admin Panel
-
-Access the admin panel at:
-
-```
-http://127.0.0.1:8000/admin/
-```
-
----
-
-## 📂 Project Structure
-
-```
-ecommerce_project/   # Main Django project
-planning_app/        # Planning-related logic
-products/            # Product models and views
-stores/              # Store management
-templates/           # HTML templates
-docs/                # Documentation
-manage.py
-requirements.txt
-README.md
-```
-
----
-
-## 📚 Documentation
-
-Documentation for this project is included in the `docs/` folder.
-
----
-
-## ⚠️ Notes for Reviewers
-
-* Ensure MySQL is running before starting the project
-* Database credentials must be configured locally
-* No sensitive data is stored in this repository
-* Virtual environments and system files are excluded via `.gitignore`
-
----
-
-## 🚀 Capstone Requirements Covered
-
-* ✔ Django application development
-* ✔ Role-based access control
-* ✔ Database integration (MySQL)
-* ✔ Version control (Git/GitHub)
-* ✔ Project documentation
-
----
-
-## 👩‍💻 Author
-
-**TammieD**
+```bash
+git clone <repository-url>
+cd ecommerce_part1_project

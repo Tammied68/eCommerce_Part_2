@@ -5,47 +5,59 @@
 </head>
 <body>
 
-<h2>{{ product.name }}</h2>
+    <h2>{{ product.name }}</h2>
 
-<p>{{ product.description }}</p>
+    <p>{{ product.description }}</p>
 
-<p>Store: {{ product.store.name }}</p>
+    <p>Store: {{ product.store.name }}</p>
 
-<p>Price: ${{ product.price }}</p>
+    <p>Price: ${{ product.price }}</p>
 
-<a href="/products/add-to-cart/{{ product.id }}/">Add to Cart</a>
+    <p>
+        <a href="{% url 'products:add_to_cart' product.id %}">
+            Add to Cart
+        </a>
+    </p>
 
-<p>
-<a href="/products/review/{{ product.id }}/">Leave Review</a>
-</p>
+    <p>
+        <a href="{% url 'products:cart_view' %}">
+            View Cart
+        </a>
+    </p>
 
-<h3>Reviews</h3>
+    <p>
+        <a href="{% url 'products:leave_review' product.id %}">
+            Leave Review
+        </a>
+    </p>
 
-{% for review in reviews %}
+    <p>
+        <a href="{% url 'products:list' %}">
+            Back to Products
+        </a>
+    </p>
 
-<div style="border:1px solid #ccc; padding:10px; margin-bottom:10px;">
+    <h3>Reviews</h3>
 
-<strong>{{ review.user.username }}</strong>
+    {% for review in reviews %}
+        <div style="border:1px solid #ccc; padding:10px; margin-bottom:10px;">
+            <strong>{{ review.user.username }}</strong>
 
-{% if review.verified %}
-    (Verified Purchase)
-{% else %}
-    (Unverified)
-{% endif %}
+            {% if review.verified %}
+                (Verified Purchase)
+            {% else %}
+                (Unverified)
+            {% endif %}
 
-<br>
+            <br>
 
-Rating: {{ review.rating }}
+            Rating: {{ review.rating }}
 
-<p>{{ review.comment }}</p>
-
-</div>
-
-{% empty %}
-
-<p>No reviews yet.</p>
-
-{% endfor %}
+            <p>{{ review.comment }}</p>
+        </div>
+    {% empty %}
+        <p>No reviews yet.</p>
+    {% endfor %}
 
 </body>
 </html>

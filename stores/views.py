@@ -13,42 +13,42 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from .models import Profile, Store
 
-
 # -------------------------
 # Store Views (Vendor Only)
 # -------------------------
 
+
 @login_required
 def store_list(request):
+    """Display stores owned by the logged-in vendor.
 
-    """Display the vendor dashboard showing stores owned by the logged-in vendor.
-
-    Redirects non-vendor users to the buyer-facing product browsing page.
+    Users in the Vendors group can access this vendor dashboard.
+    Non-vendor users are redirected to the buyer-facing product page.
     """
 
-    profile = getattr(request.user, "profile", None)
+    is_vendor = request.user.groups.filter(name="Vendors").exists()
 
-    # Buyers and admins should not access vendor dashboards
-    if not profile or profile.role != "vendor":
-        return redirect("/products/")
+    if not is_vendor:
+        return redirect("products:list")
 
     stores = Store.objects.filter(vendor=request.user)
-    return render(request, "stores/store_list.html", {"stores": stores})
+
+    return render(
+        request,
+        "stores/store_list.html",
+        {"stores": stores},
+    )
 
 
 @login_required
 def create_store(request):
+    """Allow vendors to create a new store."""
 
-    """Create a new store for the logged-in vendor.
+    is_vendor = request.user.groups.filter(name="Vendors").exists()
 
-    Vendors can submit a store name/description via POST. Non-vendors are redirected.
-    """
-
-    profile = getattr(request.user, "profile", None)
-
-    if not profile or profile.role != "vendor":
-        messages.error(request, "Only vendors can create stores.")
-        return redirect("/products/")
+    if not is_vendor:
+        messages.error(request, "Only vendors can create a store.")
+        return redirect("products:list")
 
     if request.method == "POST":
         Store.objects.create(
@@ -63,16 +63,15 @@ def create_store(request):
 
 @login_required
 def edit_store(request, store_id):
-
     """Edit an existing store owned by the logged-in vendor.
 
     Only the owner vendor can access this view; other users will receive a 404.
     """
 
-    profile = getattr(request.user, "profile", None)
+    is_vendor = request.user.groups.filter(name="Vendors").exists()
 
-    if not profile or profile.role != "vendor":
-        return redirect("/products/")
+    if not is_vendor:
+        return redirect("products:list")
 
     store = get_object_or_404(Store, id=store_id, vendor=request.user)
 
@@ -87,16 +86,15 @@ def edit_store(request, store_id):
 
 @login_required
 def delete_store(request, store_id):
-
     """Delete an existing store owned by the logged-in vendor.
 
     Confirms deletion via GET and removes the store via POST.
     """
 
-    profile = getattr(request.user, "profile", None)
+    is_vendor = request.user.groups.filter(name="Vendors").exists()
 
-    if not profile or profile.role != "vendor":
-        return redirect("/products/")
+    if not is_vendor:
+        return redirect("products:list")
 
     store = get_object_or_404(Store, id=store_id, vendor=request.user)
 
@@ -111,8 +109,8 @@ def delete_store(request, store_id):
 # Authentication Views
 # -------------------------
 
-def site_login(request):
 
+def site_login(request):
     """Authenticate storefront users (buyers/vendors) and block admin logins.
 
     Admin/staff users are redirected to the Django admin login page.
@@ -128,10 +126,7 @@ def site_login(request):
         if user is not None:
             # Admins must use Django admin
             if user.is_staff or user.is_superuser:
-                messages.error(
-                    request,
-                    "Admins must log in through the admin panel."
-                )
+                messages.error(request, "Admins must log in through the admin panel.")
                 return redirect("/admin/")
 
             login(request, user)
@@ -143,7 +138,6 @@ def site_login(request):
 
 
 def register(request):
-
     """Register a new buyer or vendor account and create the associated Profile.
 
     On success, logs the user in and redirects based on role rules.

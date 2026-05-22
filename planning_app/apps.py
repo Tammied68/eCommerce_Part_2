@@ -4,7 +4,6 @@ from django.apps import AppConfig
 
 
 class PlanningAppConfig(AppConfig):
-
     """Configuration for the planning_app Django application.
 
     Ensures signals are registered when the app is ready.

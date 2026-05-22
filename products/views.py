@@ -5,21 +5,23 @@ from django.core.mail import send_mail
 from .models import Product, Order, OrderItem, Review
 from stores.models import Store
 
-'''Views for the products application.
+"""Views for the products application.
 
 Handles product browsing, vendor product management,
 shopping cart functionality, checkout processing,
-and product reviews including verified review detection.'''
+and product reviews including verified review detection."""
+
 
 @login_required
 def list_store_products(request, store_id):
     store = get_object_or_404(Store, id=store_id, vendor=request.user)
     products = Product.objects.filter(store=store)
 
-    return render(request, "products/list_store_products.html", {
-        "store": store,
-        "products": products
-    })
+    return render(
+        request,
+        "products/list_store_products.html",
+        {"store": store, "products": products},
+    )
 
 
 @login_required
@@ -33,18 +35,12 @@ def add_product(request, store_id):
         image = request.FILES.get("image")
 
         Product.objects.create(
-            store=store,
-            name=name,
-            description=description,
-            price=price,
-            image=image
+            store=store, name=name, description=description, price=price, image=image
         )
 
-        return redirect("list_store_products", store_id=store.id)
+        return redirect("products:list_store_products", store_id=store.id)
 
-    return render(request, "products/add_product.html", {
-        "store": store
-    })
+    return render(request, "products/add_product.html", {"store": store})
 
 
 @login_required
@@ -61,11 +57,9 @@ def edit_product(request, product_id):
 
         product.save()
 
-        return redirect("list_store_products", store_id=product.store.id)
+        return redirect("products:list_store_products", store_id=product.store.id)
 
-    return render(request, "products/edit_product.html", {
-        "product": product
-    })
+    return render(request, "products/edit_product.html", {"product": product})
 
 
 @login_required
@@ -74,11 +68,10 @@ def delete_product(request, product_id):
     store_id = product.store.id
     product.delete()
 
-    return redirect("list_store_products", store_id=store_id)
+    return redirect("products:list_store_products", store_id=store_id)
 
 
 def add_to_cart(request, product_id):
-
     """Add a product to the user's cart.
 
     Stores cart data in session and redirects back to the cart or product page.
@@ -88,7 +81,7 @@ def add_to_cart(request, product_id):
     cart[str(product_id)] = cart.get(str(product_id), 0) + 1
     request.session["cart"] = cart
 
-    return redirect("cart_view")
+    return redirect("products:cart_view")
 
 
 def cart_view(request):
@@ -103,20 +96,17 @@ def cart_view(request):
         total += product.total_price
         products.append(product)
 
-    return render(request, "cart/cart.html", {
-        "products": products,
-        "total": total
-    })
+    return render(request, "cart/cart.html", {"products": products, "total": total})
 
 
 @login_required
 def checkout(request):
-    ''' Processes the user's cart, creates an order, sends an invoice email,
-    and clears the session cart.'''
+    """Processes the user's cart, creates an order, sends an invoice email,
+    and clears the session cart."""
     cart = request.session.get("cart", {})
 
     if not cart:
-        return redirect("cart_view")
+        return redirect("products:cart_view")
 
     order = Order.objects.create(buyer=request.user)
     total = 0
@@ -125,11 +115,7 @@ def checkout(request):
     for product_id, quantity in cart.items():
         product = get_object_or_404(Product, id=product_id)
 
-        OrderItem.objects.create(
-            order=order,
-            product=product,
-            quantity=quantity
-        )
+        OrderItem.objects.create(order=order, product=product, quantity=quantity)
 
         line_total = product.price * quantity
         total += line_total
@@ -137,9 +123,7 @@ def checkout(request):
 
     invoice_message = (
         f"Thank you for your purchase!\n\n"
-        f"Order #{order.id}\n\n"
-        + "\n".join(invoice_lines)
-        + f"\n\nTotal: {total}"
+        f"Order #{order.id}\n\n" + "\n".join(invoice_lines) + f"\n\nTotal: {total}"
     )
 
     if request.user.email:
@@ -153,28 +137,34 @@ def checkout(request):
 
     request.session["cart"] = {}
 
-    return render(request, "checkout_success.html", {
-        "order": order,
-        "total": total
-    })
+    return render(request, "checkout_success.html", {"order": order, "total": total})
 
 
 def browse_products(request):
-
     """Display the buyer-facing product listing page.
 
     Shows available products and provides entry points for login/registration.
+    Vendors are also shown a link to manage their stores.
     """
 
     products = Product.objects.select_related("store").all()
 
-    return render(request, "products/browse_products.html", {
-        "products": products
-    })
+    is_vendor = (
+        request.user.is_authenticated
+        and request.user.groups.filter(name="Vendors").exists()
+    )
+
+    return render(
+        request,
+        "products/browse_products.html",
+        {
+            "products": products,
+            "is_vendor": is_vendor,
+        },
+    )
 
 
 def product_detail(request, product_id):
-
     """Display a single product detail page including reviews.
 
     Loads product information and associated reviews for display.
@@ -183,15 +173,15 @@ def product_detail(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     reviews = product.reviews.all().order_by("-created_at")
 
-    return render(request, "products/product_detail.html", {
-        "product": product,
-        "reviews": reviews
-    })
+    return render(
+        request,
+        "products/product_detail.html",
+        {"product": product, "reviews": reviews},
+    )
 
 
 @login_required
 def leave_review(request, product_id):
-
     """Allow a logged-in buyer to submit a review for a product.
 
     Creates a review associated with request.user and the selected product.
@@ -203,10 +193,9 @@ def leave_review(request, product_id):
         rating = request.POST["rating"]
         comment = request.POST["comment"]
 
-# This code makes the review verified or unverified.
+        # This code makes the review verified or unverified.
         purchased = OrderItem.objects.filter(
-            order__buyer=request.user,
-            product=product
+            order__buyer=request.user, product=product
         ).exists()
 
         Review.objects.create(
@@ -214,11 +203,9 @@ def leave_review(request, product_id):
             user=request.user,
             rating=rating,
             comment=comment,
-            verified=purchased
+            verified=purchased,
         )
 
-        return redirect("product_detail", product_id=product.id)
+        return redirect("products:product_detail", product_id=product.id)
 
-    return render(request, "products/leave_review.html", {
-        "product": product
-    })
+    return render(request, "products/leave_review.html", {"product": product})

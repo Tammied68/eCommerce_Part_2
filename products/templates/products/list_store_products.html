@@ -8,7 +8,9 @@
 <h2>Products in {{ store.name }}</h2>
 
 <p>
-<a href="/products/{{ store.id }}/products/add/">Add Product</a>
+    <a href="{% url 'products:add_product' store.id %}">
+        Add Product
+    </a>
 </p>
 
 <ul>
@@ -17,15 +19,24 @@
         <strong>{{ product.name }}</strong>
         - ${{ product.price }}
 
-        <a href="/products/edit/{{ product.id }}/">Edit</a>
-        <a href="/products/delete/{{ product.id }}/">Delete</a>
+        <a href="{% url 'products:edit_product' product.id %}">
+            Edit
+        </a>
+
+        <a href="{% url 'products:delete_product' product.id %}">
+            Delete
+        </a>
     </li>
 {% empty %}
     <li>No products yet.</li>
 {% endfor %}
 </ul>
 
-<p><a href="/stores/">Back to Stores</a></p>
+<p>
+    <a href="{% url 'store_list' %}">
+        Back to Stores
+    </a>
+</p>
 
 </body>
 </html>

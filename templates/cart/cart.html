@@ -22,8 +22,17 @@
 
 <p><strong>Total:</strong> ${{ total }}</p>
 
-<p><a href="/products/checkout/">Checkout</a></p>
-<p><a href="/products/browse/">Continue Shopping</a></p>
+<p>
+    <a href="{% url 'products:checkout' %}">
+        Checkout
+    </a>
+</p>
+
+<p>
+    <a href="{% url 'products:list' %}">
+        Continue Shopping
+    </a>
+</p>
 
 </body>
 </html>

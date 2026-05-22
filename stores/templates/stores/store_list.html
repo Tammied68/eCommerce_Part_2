@@ -6,26 +6,48 @@
 <body>
     <h2>Your Stores</h2>
 
-    <p>{% url 'create_store' %}Create Store</a>
+    <p>
+        <a href="{% url 'products:list' %}">All Products</a>
+    </p>
 
-{% if messages %}
-  <ul>
-    {% for message in messages %}
-      <li>{{ message }}</li>
-    {% endfor %}
-  </ul>
-{% endif %}
+    {% if user.is_authenticated %}
+        <p>
+            <a href="{% url 'create_store' %}">
+                <button type="button">Create Store</button>
+            </a>
+        </p>
+
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+        </form>
+    {% else %}
+        <p>
+            <a href="{% url 'login' %}">Login</a> |
+            <a href="{% url 'register' %}">Register</a>
+        </p>
+    {% endif %}
+
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
     <ul>
-    {% for store in stores %}
-        <li>
-            {{ store.name }}
-            <a href="/stores/edit/{{ store.id }}/">Edit</a>
-            <a href="/stores/delete/{{ store.id }}/">Delete</a>
-            <a href="/products/{{ store.id }}/products/">View Products</a>
-        </li>
-    {% empty %}
-        <li>No stores yet.</li>
-    {% endfor %}
+        {% for store in stores %}
+            <li>
+                {{ store.name }}
+
+                <a href="{% url 'edit_store' store.id %}">Edit</a>
+                <a href="{% url 'delete_store' store.id %}">Delete</a>
+                <a href="/products/{{ store.id }}/products/">View Products</a>
+            </li>
+        {% empty %}
+            <li>No stores yet.</li>
+        {% endfor %}
     </ul>
 </body>
 </html>

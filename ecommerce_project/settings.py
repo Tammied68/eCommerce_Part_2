@@ -4,13 +4,13 @@
 # import pymysql
 
 # pymysql.version_info = (2, 2, 1, "final", 0)
-#pymysql.install_as_MySQLdb()
+# pymysql.install_as_MySQLdb()
 
-'''Django settings for the ecommerce project.
+"""Django settings for the ecommerce project.
 
 This project implements a multi-vendor ecommerce system
 with buyer product browsing, session-based carts,
-checkout with email invoices, and verified product reviews.'''
+checkout with email invoices, and verified product reviews."""
 
 # =========================
 # STANDARD DJANGO SETTINGS
@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
     # Project apps
     "products.apps.ProductsConfig",
     "stores.apps.StoresConfig",
@@ -103,7 +102,9 @@ DATABASES = {
 # PASSWORD VALIDATION
 # =========================
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+    },
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},

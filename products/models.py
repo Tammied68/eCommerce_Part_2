@@ -2,17 +2,19 @@ from django.db import models
 from stores.models import Store
 from django.contrib.auth.models import User
 
-'''Models for the products application.
+"""Models for the products application.
 
 Defines database structures for products, orders, order items,
 and product reviews. These models support vendor product
 management, buyer purchases, and the review system with
-verified purchase detection.'''
+verified purchase detection."""
+
 
 class Product(models.Model):
-    '''Represents a product that belongs to a specific store.
+    """Represents a product that belongs to a specific store.
     Vendors can add, edit, and remove these products.
-    Buyers can browse and purchase them.'''
+    Buyers can browse and purchase them."""
+
     store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name="products")
     name = models.CharField(max_length=255)
     description = models.TextField()
@@ -41,10 +43,13 @@ class OrderItem(models.Model):
 
 
 class Review(models.Model):
-    '''Represents a user review for a product.
+    """Represents a user review for a product.
     Reviews may be marked as verified if the user
-    previously purchased the product.'''
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="reviews")
+    previously purchased the product."""
+
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name="reviews"
+    )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     rating = models.PositiveIntegerField()
     comment = models.TextField()
