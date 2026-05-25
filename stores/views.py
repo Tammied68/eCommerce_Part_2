@@ -9,8 +9,8 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import Group
 from django.shortcuts import get_object_or_404, redirect, render
-
 from .models import Profile, Store
 
 # -------------------------
@@ -138,9 +138,10 @@ def site_login(request):
 
 
 def register(request):
-    """Register a new buyer or vendor account and create the associated Profile.
+    """Register a new buyer or vendor account.
 
-    On success, logs the user in and redirects based on role rules.
+    Creates the user's profile, assigns the correct Django group, logs the
+    user in, and redirects them to the correct area of the application.
     """
 
     if request.method == "POST":
@@ -151,9 +152,18 @@ def register(request):
             user = form.save()
             Profile.objects.create(user=user, role=role)
 
+            if role == "vendor":
+                group, _ = Group.objects.get_or_create(name="Vendors")
+                redirect_url = "store_list"
+            else:
+                group, _ = Group.objects.get_or_create(name="Buyers")
+                redirect_url = "products:list"
+
+            user.groups.add(group)
+
             login(request, user)
             messages.success(request, "Registration successful.")
-            return redirect("store_list")
+            return redirect(redirect_url)
     else:
         form = UserCreationForm()
 
