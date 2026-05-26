@@ -6,10 +6,10 @@ This project is a Django-based eCommerce application developed as part of the Hy
 
 The application supports two user roles:
 
-* **Buyers** who can browse products, add items to a shopping cart, complete purchases, and leave reviews.
-* **Vendors** who can create stores and manage products within those stores.
+- **Buyers** who can browse products, add items to a shopping cart, complete purchases, and leave reviews.
+- **Vendors** who can create stores and manage products within those stores.
 
-The system implements role-based access control, session-based cart management, checkout functionality, invoice generation, email notifications, and verified purchase reviews.
+The system implements role-based access control, session-based shopping carts, checkout functionality, invoice generation, email notifications, password recovery, and verified purchase reviews.
 
 ---
 
@@ -17,69 +17,113 @@ The system implements role-based access control, session-based cart management, 
 
 ### Authentication
 
-* User registration
-* User login
-* User logout
-* Role-based access control
+The application includes:
+
+- User registration
+- User login
+- User logout
+- Password reset and account recovery
+- Role-based access control
+- Automatic buyer/vendor group assignment during registration
+
+Users are automatically assigned to the appropriate Django group when registering, allowing immediate access to role-specific functionality without requiring administrative intervention.
+
+---
 
 ### Vendor Features
 
 Vendors can:
 
-* Create stores
-* Edit stores
-* Delete stores
-* View stores they own
-* Add products
-* Edit products
-* Delete products
+- Create stores
+- Edit stores
+- Delete stores
+- View stores they own
+- Add products to stores
+- Edit products
+- Delete products
+- View customer reviews on products
+
+Vendor-only functionality is protected through role-based permissions.
+
+---
 
 ### Buyer Features
 
 Buyers can:
 
-* Browse products
-* View product details
-* Add products to a shopping cart
-* Checkout purchases
-* Leave reviews
-* View verified purchase indicators
+- Browse available products
+- View product details
+- Add products to a shopping cart
+- Checkout purchases
+- Leave product reviews
+- View verified purchase indicators
+
+---
 
 ### Shopping Cart
 
 The application uses Django sessions to maintain cart contents while users browse the store.
 
+Features include:
+
+- Add products to cart
+- View cart contents
+- View order totals
+- Checkout purchased items
+- Automatic cart clearing after successful checkout
+
+---
+
 ### Checkout and Invoicing
 
 When a buyer completes checkout:
 
-* An order is created
-* Products are removed from the cart
-* An invoice is generated
-* An invoice email is sent to the buyer
+- An order is created
+- Order items are recorded
+- Products are removed from the cart
+- An invoice is generated
+- An invoice email is sent to the buyer
+
+---
 
 ### Product Reviews
 
-Buyers can submit product reviews.
+Buyers can leave reviews on products.
 
-The application automatically identifies verified purchases and displays:
+The application automatically determines whether a user has previously purchased a product and displays:
 
-* Verified Purchase
-* Unverified
+- **Verified Purchase**
+- **Unverified**
 
-based on whether the buyer previously purchased the product.
+This provides more trustworthy feedback for future buyers.
+
+---
+
+### Account Recovery
+
+The application implements Django's built-in password reset functionality.
+
+Features include:
+
+- Password reset request by email
+- Secure password reset tokens
+- Password reset confirmation page
+- Password reset completion page
+
+During development, password reset emails are displayed in the terminal using Django's Console Email Backend.
 
 ---
 
 ## Technologies Used
 
-* Python
-* Django
-* MariaDB
-* HTML
-* CSS
-* Django Sessions
-* Django Authentication System
+- Python
+- Django
+- MariaDB
+- HTML
+- CSS
+- Bootstrap
+- Django Sessions
+- Django Authentication System
 
 ---
 
@@ -122,9 +166,9 @@ pip install -r requirements.txt
 
 ## Database Configuration
 
-This project uses MariaDB.
+This project uses MariaDB as the database backend.
 
-Update the database settings in:
+Update the database configuration in:
 
 ```text
 ecommerce_project/settings.py
@@ -156,7 +200,7 @@ python manage.py makemigrations
 python manage.py migrate
 ```
 
-Start the development server:
+Run the development server:
 
 ```bash
 python manage.py runserver
@@ -176,19 +220,25 @@ http://127.0.0.1:8000/
 
 1. Register a buyer account.
 2. Log in.
-3. Browse products.
-4. Add products to the cart.
-5. Checkout.
-6. Leave a review.
+3. Browse available products.
+4. View product details.
+5. Add products to the cart.
+6. Checkout purchases.
+7. Leave reviews.
+8. Submit verified purchase reviews after checkout.
+
+---
 
 ### Vendor Workflow
 
 1. Register a vendor account.
 2. Log in.
-3. Select **My Stores**.
+3. Access **My Stores**.
 4. Create a store.
 5. Add products to the store.
-6. Edit or delete stores and products.
+6. Edit products.
+7. Delete products.
+8. Edit or delete stores.
 
 ---
 
@@ -210,24 +260,55 @@ ecommerce_part1_project/
 
 ## Assignment Requirements Implemented
 
-* User registration and authentication
-* Vendor store management
-* Product management
-* Session-based shopping cart
-* Checkout process
-* Invoice generation
-* Email notifications
-* Product reviews
-* Verified purchase reviews
-* Role-based permissions
-* MariaDB database integration
+- User registration
+- User login and logout
+- Password reset functionality
+- Vendor store management
+- Product management
+- Session-based shopping cart
+- Checkout process
+- Invoice generation
+- Email notifications
+- Product reviews
+- Verified purchase reviews
+- Role-based permissions
+- Automatic buyer/vendor group assignment
+- MariaDB database integration
+
+---
+
+## Testing
+
+### Vendor Testing
+
+Verified functionality includes:
+
+- Vendor registration
+- Vendor login
+- Store creation
+- Store editing
+- Store deletion
+- Product creation
+- Product editing
+- Product deletion
+
+### Buyer Testing
+
+Verified functionality includes:
+
+- Buyer registration
+- Buyer login
+- Product browsing
+- Cart management
+- Checkout process
+- Product reviews
+- Verified purchase reviews
 
 ---
 
 ## Author
 
-**Tammie Davis**
-University of Chicago
-HyperionDev Software Engineering Bootcamp
+**Tammie Davis**  
+University of Chicago, HyperionDev Software Engineering Bootcamp
 
 ---
