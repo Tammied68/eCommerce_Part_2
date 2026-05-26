@@ -8,7 +8,7 @@ and allows new users to register.
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm
+from .forms import RegisterForm
 from django.contrib.auth.models import Group
 from django.shortcuts import get_object_or_404, redirect, render
 from .models import Profile, Store
@@ -145,26 +145,32 @@ def register(request):
     """
 
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
+        form = RegisterForm(request.POST)
         role = request.POST.get("role")
 
         if form.is_valid():
             user = form.save()
-            Profile.objects.create(user=user, role=role)
 
-            if role == "vendor":
-                group, _ = Group.objects.get_or_create(name="Vendors")
-                redirect_url = "store_list"
-            else:
-                group, _ = Group.objects.get_or_create(name="Buyers")
-                redirect_url = "products:list"
+        user.email = form.cleaned_data["email"]
+        user.save()
 
-            user.groups.add(group)
+        Profile.objects.create(user=user, role=role)
 
-            login(request, user)
-            messages.success(request, "Registration successful.")
-            return redirect(redirect_url)
+        if role == "vendor":
+            group, _ = Group.objects.get_or_create(name="Vendors")
+            redirect_url = "store_list"
+        else:
+            group, _ = Group.objects.get_or_create(name="Buyers")
+            redirect_url = "products:list"
+
+        user.groups.add(group)
+
+        login(request, user)
+        messages.success(request, "Registration successful.")
+        return redirect(redirect_url)
+
+            
     else:
-        form = UserCreationForm()
+        form = RegisterForm()
 
     return render(request, "registration/register.html", {"form": form})
