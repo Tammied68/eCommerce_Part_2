@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "products.apps.ProductsConfig",
     "stores.apps.StoresConfig",
     "widget_tweaks",
+    "rest_framework",
 ]
 
 

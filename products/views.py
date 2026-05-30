@@ -5,6 +5,12 @@ from django.core.mail import send_mail
 from .models import Product, Order, OrderItem, Review
 from stores.models import Store
 
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+
+from .serializers import ProductSerializer
+
 """Views for the products application.
 
 Handles product browsing, vendor product management,
@@ -209,3 +215,53 @@ def leave_review(request, product_id):
         return redirect("products:product_detail", product_id=product.id)
 
     return render(request, "products/leave_review.html", {"product": product})
+
+
+# -------------------------
+# Part 2 REST API Views
+# -------------------------
+
+
+@api_view(["GET", "POST"])
+def store_products_api(request, store_id):
+    """
+    Retrieve all products for a store or add a new product to that store.
+    """
+
+    try:
+        store = Store.objects.get(pk=store_id)
+    except Store.DoesNotExist:
+        return Response(
+            {"detail": "Store not found."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    if request.method == "GET":
+        products = Product.objects.filter(store=store)
+        serializer = ProductSerializer(products, many=True)
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK,
+        )
+
+    if not request.user.is_authenticated:
+        return Response(
+            {"detail": "Authentication required to add a product."},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    serializer = ProductSerializer(data=request.data)
+
+    if serializer.is_valid():
+        product = serializer.save(store=store)
+
+        return Response(
+            ProductSerializer(product).data,
+            status=status.HTTP_201_CREATED,
+        )
+
+    return Response(
+        serializer.errors,
+        status=status.HTTP_400_BAD_REQUEST,
+    )

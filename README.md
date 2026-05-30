@@ -1,15 +1,20 @@
-# eCommerce Application Part 1
+# eComm2_Fixed/
+
+## Repository
+https://github.com/Tammied68/eCommerce_Part_2
 
 ## Overview
 
 This project is a Django-based eCommerce application developed as part of the HyperionDev Software Engineering Bootcamp.
 
+Part 2 extends the functionality implemented in Part 1 by integrating Django REST Framework (DRF) and exposing store and product data through RESTful API endpoints.
+
 The application supports two user roles:
 
-- **Buyers** who can browse products, add items to a shopping cart, complete purchases, and leave reviews.
-- **Vendors** who can create stores and manage products within those stores.
+* **Buyers** who can browse products, add items to a shopping cart, complete purchases, and leave reviews.
+* **Vendors** who can create stores and manage products within those stores.
 
-The system implements role-based access control, session-based shopping carts, checkout functionality, invoice generation, email notifications, password recovery, and verified purchase reviews.
+The system implements role-based access control, session-based shopping carts, checkout functionality, invoice generation, email notifications, password recovery, verified purchase reviews, and REST API functionality.
 
 ---
 
@@ -19,14 +24,14 @@ The system implements role-based access control, session-based shopping carts, c
 
 The application includes:
 
-- User registration
-- User login
-- User logout
-- Password reset and account recovery
-- Role-based access control
-- Automatic buyer/vendor group assignment during registration
+* User registration
+* User login
+* User logout
+* Password reset and account recovery
+* Role-based access control
+* Automatic buyer/vendor group assignment during registration
 
-Users are automatically assigned to the appropriate Django group when registering, allowing immediate access to role-specific functionality without requiring administrative intervention.
+Users are automatically assigned to the appropriate Django group when registering, allowing immediate access to role-specific functionality.
 
 ---
 
@@ -34,14 +39,14 @@ Users are automatically assigned to the appropriate Django group when registerin
 
 Vendors can:
 
-- Create stores
-- Edit stores
-- Delete stores
-- View stores they own
-- Add products to stores
-- Edit products
-- Delete products
-- View customer reviews on products
+* Create stores
+* Edit stores
+* Delete stores
+* View stores they own
+* Add products to stores
+* Edit products
+* Delete products
+* View customer reviews on products
 
 Vendor-only functionality is protected through role-based permissions.
 
@@ -51,12 +56,12 @@ Vendor-only functionality is protected through role-based permissions.
 
 Buyers can:
 
-- Browse available products
-- View product details
-- Add products to a shopping cart
-- Checkout purchases
-- Leave product reviews
-- View verified purchase indicators
+* Browse available products
+* View product details
+* Add products to a shopping cart
+* Checkout purchases
+* Leave product reviews
+* View verified purchase indicators
 
 ---
 
@@ -66,11 +71,11 @@ The application uses Django sessions to maintain cart contents while users brows
 
 Features include:
 
-- Add products to cart
-- View cart contents
-- View order totals
-- Checkout purchased items
-- Automatic cart clearing after successful checkout
+* Add products to cart
+* View cart contents
+* View order totals
+* Checkout purchased items
+* Automatic cart clearing after successful checkout
 
 ---
 
@@ -78,11 +83,11 @@ Features include:
 
 When a buyer completes checkout:
 
-- An order is created
-- Order items are recorded
-- Products are removed from the cart
-- An invoice is generated
-- An invoice email is sent to the buyer
+* An order is created
+* Order items are recorded
+* Products are removed from the cart
+* An invoice is generated
+* An invoice email is sent to the buyer
 
 ---
 
@@ -92,8 +97,8 @@ Buyers can leave reviews on products.
 
 The application automatically determines whether a user has previously purchased a product and displays:
 
-- **Verified Purchase**
-- **Unverified**
+* **Verified Purchase**
+* **Unverified**
 
 This provides more trustworthy feedback for future buyers.
 
@@ -105,25 +110,63 @@ The application implements Django's built-in password reset functionality.
 
 Features include:
 
-- Password reset request by email
-- Secure password reset tokens
-- Password reset confirmation page
-- Password reset completion page
+* Password reset request by email
+* Secure password reset tokens
+* Password reset confirmation page
+* Password reset completion page
 
 During development, password reset emails are displayed in the terminal using Django's Console Email Backend.
 
 ---
 
+## REST API Functionality
+
+Part 2 extends the application by providing RESTful API endpoints using Django REST Framework.
+
+API functionality includes:
+
+* Retrieve all stores
+* Retrieve a single store
+* Retrieve stores belonging to a vendor
+* Create stores via API
+* Retrieve products belonging to a store
+* Create products via API
+
+All API responses are returned in JSON format.
+
+---
+
+## API Endpoints
+
+### Stores API
+
+| Method | Endpoint                          | Description                               |
+| ------ | --------------------------------- | ----------------------------------------- |
+| GET    | `/stores/api/`                    | Retrieve all stores                       |
+| GET    | `/stores/api/<store_id>/`         | Retrieve a single store                   |
+| GET    | `/stores/api/vendor/<vendor_id>/` | Retrieve all stores belonging to a vendor |
+| POST   | `/stores/api/create/`             | Create a new store                        |
+
+### Products API
+
+| Method | Endpoint                          | Description                      |
+| ------ | --------------------------------- | -------------------------------- |
+| GET    | `/products/api/store/<store_id>/` | Retrieve products for a store    |
+| POST   | `/products/api/store/<store_id>/` | Create a new product for a store |
+
+---
+
 ## Technologies Used
 
-- Python
-- Django
-- MariaDB
-- HTML
-- CSS
-- Bootstrap
-- Django Sessions
-- Django Authentication System
+* Python
+* Django
+* Django REST Framework (DRF)
+* SQLite
+* HTML
+* CSS
+* Bootstrap
+* Django Sessions
+* Django Authentication System
 
 ---
 
@@ -132,8 +175,8 @@ During development, password reset emails are displayed in the terminal using Dj
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/Tammied68/ecommerce_part1_project-.git
-cd ecommerce_part1_project
+git clone https://github.com/Tammied68/eCommerce_Part_2.git
+cd eComm2_Fixed
 ```
 
 ### Create a Virtual Environment
@@ -168,11 +211,9 @@ pip install -r requirements.txt
 
 This project uses MariaDB as the database backend.
 
-Update the database configuration in:
+Database configuration can be found in:
 
-```text
 ecommerce_project/settings.py
-```
 
 Example configuration:
 
@@ -188,7 +229,6 @@ DATABASES = {
     }
 }
 ```
-
 ---
 
 ## Running the Application
@@ -245,7 +285,7 @@ http://127.0.0.1:8000/
 ## Project Structure
 
 ```text
-ecommerce_part1_project/
+ecommerce_part2_project/
 │
 ├── ecommerce_project/
 ├── stores/
@@ -260,20 +300,31 @@ ecommerce_part1_project/
 
 ## Assignment Requirements Implemented
 
-- User registration
-- User login and logout
-- Password reset functionality
-- Vendor store management
-- Product management
-- Session-based shopping cart
-- Checkout process
-- Invoice generation
-- Email notifications
-- Product reviews
-- Verified purchase reviews
-- Role-based permissions
-- Automatic buyer/vendor group assignment
-- MariaDB database integration
+### Part 1 Requirements
+
+* User registration
+* User login and logout
+* Password reset functionality
+* Vendor store management
+* Product management
+* Session-based shopping cart
+* Checkout process
+* Invoice generation
+* Email notifications
+* Product reviews
+* Verified purchase reviews
+* Role-based permissions
+* Automatic buyer/vendor group assignment
+
+### Part 2 Requirements
+
+* Django REST Framework integration
+* Store API endpoints
+* Product API endpoints
+* JSON API responses
+* Vendor store retrieval API
+* Store product retrieval API
+* Authenticated API creation endpoints
 
 ---
 
@@ -283,32 +334,41 @@ ecommerce_part1_project/
 
 Verified functionality includes:
 
-- Vendor registration
-- Vendor login
-- Store creation
-- Store editing
-- Store deletion
-- Product creation
-- Product editing
-- Product deletion
+* Vendor registration
+* Vendor login
+* Store creation
+* Store editing
+* Store deletion
+* Product creation
+* Product editing
+* Product deletion
 
 ### Buyer Testing
 
 Verified functionality includes:
 
-- Buyer registration
-- Buyer login
-- Product browsing
-- Cart management
-- Checkout process
-- Product reviews
-- Verified purchase reviews
+* Buyer registration
+* Buyer login
+* Product browsing
+* Cart management
+* Checkout process
+* Product reviews
+* Verified purchase reviews
+
+### API Testing
+
+Verified functionality includes:
+
+* Retrieve all stores
+* Retrieve a single store
+* Retrieve vendor stores
+* Create stores through API
+* Retrieve store products
+* Create products through API
 
 ---
 
 ## Author
 
-**Tammie Davis**  
+**Tammie Davis**
 University of Chicago, HyperionDev Software Engineering Bootcamp
-
----

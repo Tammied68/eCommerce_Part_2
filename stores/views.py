@@ -1,17 +1,25 @@
 """
 Views for the stores application.
 
-Provides functionality for vendors to create, edit, view, and delete stores,
-and allows new users to register.
+Includes:
+- Part 1 web views for vendor store management and registration/login
+- Part 2 REST API views for stores
 """
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
-from .forms import RegisterForm
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
 from django.shortcuts import get_object_or_404, redirect, render
+
+from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+from .forms import RegisterForm
 from .models import Profile, Store
+from .serializers import StoreSerializer
+
 
 # -------------------------
 # Store Views (Vendor Only)
@@ -20,11 +28,7 @@ from .models import Profile, Store
 
 @login_required
 def store_list(request):
-    """Display stores owned by the logged-in vendor.
-
-    Users in the Vendors group can access this vendor dashboard.
-    Non-vendor users are redirected to the buyer-facing product page.
-    """
+    """Display stores owned by the logged-in vendor."""
 
     is_vendor = request.user.groups.filter(name="Vendors").exists()
 
@@ -33,16 +37,12 @@ def store_list(request):
 
     stores = Store.objects.filter(vendor=request.user)
 
-    return render(
-        request,
-        "stores/store_list.html",
-        {"stores": stores},
-    )
+    return render(request, "stores/store_list.html", {"stores": stores})
 
 
 @login_required
 def create_store(request):
-    """Allow vendors to create a new store."""
+    """Allow vendors to create a new store through the web page."""
 
     is_vendor = request.user.groups.filter(name="Vendors").exists()
 
@@ -63,10 +63,7 @@ def create_store(request):
 
 @login_required
 def edit_store(request, store_id):
-    """Edit an existing store owned by the logged-in vendor.
-
-    Only the owner vendor can access this view; other users will receive a 404.
-    """
+    """Edit an existing store owned by the logged-in vendor."""
 
     is_vendor = request.user.groups.filter(name="Vendors").exists()
 
@@ -86,10 +83,7 @@ def edit_store(request, store_id):
 
 @login_required
 def delete_store(request, store_id):
-    """Delete an existing store owned by the logged-in vendor.
-
-    Confirms deletion via GET and removes the store via POST.
-    """
+    """Delete an existing store owned by the logged-in vendor."""
 
     is_vendor = request.user.groups.filter(name="Vendors").exists()
 
@@ -111,11 +105,7 @@ def delete_store(request, store_id):
 
 
 def site_login(request):
-    """Authenticate storefront users (buyers/vendors) and block admin logins.
-
-    Admin/staff users are redirected to the Django admin login page.
-    Successful logins redirect to the buyer-facing product browsing page.
-    """
+    """Authenticate storefront users and block admin logins."""
 
     if request.method == "POST":
         username = request.POST.get("username")
@@ -124,7 +114,6 @@ def site_login(request):
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
-            # Admins must use Django admin
             if user.is_staff or user.is_superuser:
                 messages.error(request, "Admins must log in through the admin panel.")
                 return redirect("/admin/")
@@ -138,11 +127,7 @@ def site_login(request):
 
 
 def register(request):
-    """Register a new buyer or vendor account.
-
-    Creates the user's profile, assigns the correct Django group, logs the
-    user in, and redirects them to the correct area of the application.
-    """
+    """Register a new buyer or vendor account."""
 
     if request.method == "POST":
         form = RegisterForm(request.POST)
@@ -150,27 +135,87 @@ def register(request):
 
         if form.is_valid():
             user = form.save()
+            user.email = form.cleaned_data["email"]
+            user.save()
 
-        user.email = form.cleaned_data["email"]
-        user.save()
+            Profile.objects.create(user=user, role=role)
 
-        Profile.objects.create(user=user, role=role)
+            if role == "vendor":
+                group, _ = Group.objects.get_or_create(name="Vendors")
+                redirect_url = "store_list"
+            else:
+                group, _ = Group.objects.get_or_create(name="Buyers")
+                redirect_url = "products:list"
 
-        if role == "vendor":
-            group, _ = Group.objects.get_or_create(name="Vendors")
-            redirect_url = "store_list"
-        else:
-            group, _ = Group.objects.get_or_create(name="Buyers")
-            redirect_url = "products:list"
+            user.groups.add(group)
 
-        user.groups.add(group)
+            login(request, user)
+            messages.success(request, "Registration successful.")
+            return redirect(redirect_url)
 
-        login(request, user)
-        messages.success(request, "Registration successful.")
-        return redirect(redirect_url)
-
-            
     else:
         form = RegisterForm()
 
     return render(request, "registration/register.html", {"form": form})
+
+
+# -------------------------
+# Part 2 REST API Views
+# -------------------------
+
+
+@api_view(["GET"])
+def list_stores(request):
+    """Return a list of all stores as JSON."""
+
+    stores = Store.objects.all()
+    serializer = StoreSerializer(stores, many=True)
+    return Response(serializer.data)
+
+
+@api_view(["GET"])
+def get_store(request, store_id):
+    """Return a single store by ID as JSON."""
+
+    store = get_object_or_404(Store, pk=store_id)
+    serializer = StoreSerializer(store)
+    return Response(serializer.data)
+
+
+@api_view(["GET"])
+def vendor_stores(request, vendor_id):
+    """Return all stores belonging to a specific vendor as JSON."""
+
+    try:
+        User.objects.get(pk=vendor_id)
+    except User.DoesNotExist:
+        return Response(
+            {"detail": "Vendor not found."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    stores = Store.objects.filter(vendor_id=vendor_id)
+    serializer = StoreSerializer(stores, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+def create_store_api(request):
+    """Create a new store through the REST API."""
+
+    if not request.user.is_authenticated:
+        return Response(
+            {"detail": "Authentication required to create a store."},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    serializer = StoreSerializer(data=request.data)
+
+    if serializer.is_valid():
+        store = serializer.save(vendor=request.user)
+        return Response(
+            StoreSerializer(store).data,
+            status=status.HTTP_201_CREATED,
+        )
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
