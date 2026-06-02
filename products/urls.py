@@ -65,6 +65,12 @@ urlpatterns = [
         name="checkout",
     ),
 
+    path(
+        "api/reviews/<int:product_id>/",
+        views.product_reviews_api,
+        name="product_reviews_api",
+    ),
+    
     # -------------------------
     # Part 2 API Views
     # -------------------------

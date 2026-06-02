@@ -21,11 +21,6 @@ from .models import Profile, Store
 from .serializers import StoreSerializer
 
 
-# -------------------------
-# Store Views (Vendor Only)
-# -------------------------
-
-
 @login_required
 def store_list(request):
     """Display stores owned by the logged-in vendor."""
@@ -42,7 +37,7 @@ def store_list(request):
 
 @login_required
 def create_store(request):
-    """Allow vendors to create a new store through the web page."""
+    """Allow vendors to create a new store through the website."""
 
     is_vendor = request.user.groups.filter(name="Vendors").exists()
 
@@ -97,11 +92,6 @@ def delete_store(request, store_id):
         return redirect("store_list")
 
     return render(request, "stores/delete_store.html", {"store": store})
-
-
-# -------------------------
-# Authentication Views
-# -------------------------
 
 
 def site_login(request):
@@ -196,12 +186,17 @@ def vendor_stores(request, vendor_id):
 
     stores = Store.objects.filter(vendor_id=vendor_id)
     serializer = StoreSerializer(stores, many=True)
+
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(["POST"])
 def create_store_api(request):
-    """Create a new store through the REST API."""
+    """
+    Create a new store through the REST API.
+
+    Only authenticated users in the Vendors group may create stores.
+    """
 
     if not request.user.is_authenticated:
         return Response(
@@ -209,10 +204,17 @@ def create_store_api(request):
             status=status.HTTP_401_UNAUTHORIZED,
         )
 
+    if not request.user.groups.filter(name="Vendors").exists():
+        return Response(
+            {"detail": "Only vendors can create stores."},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
     serializer = StoreSerializer(data=request.data)
 
     if serializer.is_valid():
         store = serializer.save(vendor=request.user)
+
         return Response(
             StoreSerializer(store).data,
             status=status.HTTP_201_CREATED,

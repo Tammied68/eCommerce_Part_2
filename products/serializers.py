@@ -13,7 +13,19 @@ class ProductSerializer(serializers.ModelSerializer):
     unauthorized reassignment through the API.
     """
 
+
+from rest_framework import serializers
+from .models import Product, Review
+
+
+class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ["id", "store", "name", "description", "image", "price"]
         read_only_fields = ["id", "store"]
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = "__all__"

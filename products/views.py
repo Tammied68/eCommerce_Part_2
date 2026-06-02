@@ -9,7 +9,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 
-from .serializers import ProductSerializer
+from .serializers import ProductSerializer, ReviewSerializer
 
 """Views for the products application.
 
@@ -33,6 +33,12 @@ def list_store_products(request, store_id):
 @login_required
 def add_product(request, store_id):
     store = get_object_or_404(Store, id=store_id, vendor=request.user)
+
+    if not request.user.groups.filter(name="Vendors").exists():
+        return Response(
+            {"detail": "Only vendors can create products."},
+            status=status.HTTP_403_FORBIDDEN,
+        )
 
     if request.method == "POST":
         name = request.POST["name"]
@@ -251,6 +257,12 @@ def store_products_api(request, store_id):
             status=status.HTTP_401_UNAUTHORIZED,
         )
 
+    if not request.user.groups.filter(name="Vendors").exists():
+        return Response(
+            {"detail": "Only vendors can create products."},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
     serializer = ProductSerializer(data=request.data)
 
     if serializer.is_valid():
@@ -265,3 +277,27 @@ def store_products_api(request, store_id):
         serializer.errors,
         status=status.HTTP_400_BAD_REQUEST,
     )
+
+
+@api_view(["GET"])
+def product_reviews_api(request, product_id):
+    """
+    Retrieve all reviews for a product.
+    """
+
+    try:
+        product = Product.objects.get(pk=product_id)
+    except Product.DoesNotExist:
+        return Response(
+            {"detail": "Product not found."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    reviews = Review.objects.filter(product=product)
+
+    serializer = ReviewSerializer(
+        reviews,
+        many=True
+    )
+
+    return Response(serializer.data)
